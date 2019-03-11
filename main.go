@@ -1,18 +1,15 @@
 package main
 
-import "os"
+import (
+	"os"
+
+	"github.com/gogolfing/gooptions/cli"
+)
 
 func main() {
-	err := mainWithArgs(os.Args[0], os.Args[1:])
+	c := &cli.Command{}
 
-	exitCode := 0
-	if err != nil {
-		exitCode = 1
-	}
+	exitCode := c.Do(os.Args[0], os.Args[1:], os.Stdout, os.Stderr)
 
 	os.Exit(exitCode)
-}
-
-func mainWithArgs(command string, args []string) error {
-	return nil
 }

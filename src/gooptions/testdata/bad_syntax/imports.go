@@ -1,0 +1,5 @@
+package badsyntax
+
+import (
+	"something
+)

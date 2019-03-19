@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/gogolfing/gooptions/cli"
+	"github.com/gogolfing/gooptions/src/cli"
 )
 
 func main() {

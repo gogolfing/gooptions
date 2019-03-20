@@ -1,19 +1,17 @@
 package model
 
-import "go/ast"
-
 type TypeOptionList struct {
-	PackageName string
-	TypeName    string
-	Fields      []*ast.Field
+	SourceFilePath string
+	PackageName    string
+	TypeName       string
+	Fields         []*Field
 }
 
-func NewTypeOptionList(packageName, typeName string, fields []*ast.Field) *TypeOptionList {
+func NewTypeOptionList(sourceFilePath, packageName, typeName string, fields []*Field) *TypeOptionList {
 	return &TypeOptionList{
-		PackageName: packageName,
-		TypeName:    typeName,
-		Fields:      fields,
+		SourceFilePath: sourceFilePath,
+		PackageName:    packageName,
+		TypeName:       typeName,
+		Fields:         fields,
 	}
 }
-
-type Field struct{}

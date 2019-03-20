@@ -9,7 +9,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"reflect"
 
 	"github.com/gogolfing/gooptions/src/gooptions/model"
 )
@@ -89,36 +88,6 @@ func PopulateModelFromGoFileASTs(m *model.Model, goFileASTs map[string]*ast.File
 		return ErrEmptyModel
 	}
 
-	return nil
-}
-
-func addStructTypeToModel(m *model.Model, filePath, packageName, typeName string, structType *ast.StructType) error {
-	fmt.Println("addStructTypeToModel()", typeName, len(structType.Fields.List))
-	for _, field := range structType.Fields.List {
-		fmt.Println(field.Names, field.Type, reflect.TypeOf(field.Type))
-
-		if ident, ok := field.Type.(*ast.Ident); ok {
-			fmt.Println(ident.Name, ident.Obj)
-		}
-	}
-
-	tol := model.NewTypeOptionList(packageName, typeName, structType.Fields.List)
-
-	return m.AddType(filePath, tol)
-}
-
-func CollectModelFieldsFromASTFieldList(fieldList *ast.FieldList) []*model.Field {
-	for _, field := range fieldList.List {
-		fmt.Println(field)
-	}
-	return nil
-}
-
-func NewModelFieldFromASTField(field *ast.Field) *model.Field {
-	switch fieldType := field.Type.(type) {
-	case *ast.Ident:
-		fmt.Println(fieldType.Name)
-	}
 	return nil
 }
 

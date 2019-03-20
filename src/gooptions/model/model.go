@@ -38,3 +38,15 @@ func (m *Model) AddType(filePath string, tol *TypeOptionList) error {
 
 	return nil
 }
+
+func (m *Model) VisitSourceFilePathTypeOptionLists(visit func(sourceFilePath string, tol *TypeOptionList) error) error {
+	for _, sourceFilePath := range m.orderedSourceFilePaths {
+		for _, tol := range m.options[sourceFilePath] {
+			if err := visit(sourceFilePath, tol); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}

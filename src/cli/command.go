@@ -6,6 +6,7 @@ import (
 	"io"
 
 	"github.com/gogolfing/gooptions/src/gooptions"
+	"github.com/gogolfing/gooptions/src/gooptions/model/modelprinter"
 )
 
 type Command struct {
@@ -29,7 +30,10 @@ func (c *Command) do(args []string, out, outErr io.Writer) error {
 		return err
 	}
 
-	fmt.Println(optionsModel)
+	printerConfig := modelprinter.Config{}
+	printer := modelprinter.New(printerConfig, optionsModel)
+
+	err = printer.Print()
 
 	return err
 }

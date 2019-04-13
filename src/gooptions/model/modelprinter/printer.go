@@ -25,7 +25,7 @@ func (p *Printer) Print() error {
 
 	err := p.model.VisitSourceFilePathTypeOptionLists(
 		func(sourceFilePath string, tol *model.TypeOptionList) error {
-			//TODO do some joining out source to output files.
+			//TODO do some joining of source to output files.
 			//TODO do some printing.
 
 			fp := NewFilePrinter(sourceFilePath+"_dest", []*model.TypeOptionList{tol})

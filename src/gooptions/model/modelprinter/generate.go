@@ -24,7 +24,7 @@ func (g *Generator) Indent() {
 	g.indent += "\t"
 }
 
-func (g *Generator) Unindent() {
+func (g *Generator) Outdent() {
 	if l := len(g.indent); l > 0 {
 		g.indent = g.indent[0 : l-1]
 	}
@@ -61,29 +61,37 @@ func GenPackage(g *Generator, tols []*model.TypeOptionList) {
 }
 
 func GenTypeOptionList(g *Generator, tol *model.TypeOptionList) {
-	GenOptionType(g, tol)
+	optionRecvType := tol.TypeName
+
+	GenOptionType(g, optionRecvType)
 
 	g.Fpln("")
 
-	GenTypeOptionFieldFactories(g, tol)
+	GenTypeOptionFieldFactories(g, optionRecvType, tol.Fields)
 }
 
-func GenOptionType(g *Generator, tol *model.TypeOptionList) {
-	g.Fpln("type Option func(*%s)", tol.TypeName)
+func GenOptionType(g *Generator, optionRecvType string) {
+	g.Fpln("type Option func(*%s)", optionRecvType)
 }
 
-func GenTypeOptionFieldFactories(g *Generator, tol *model.TypeOptionList) {
-	// g.Fpln("func With%s(%s %s) Option {", tol.Fields[0].Name, tol.Fields[0].Name, tol.Fields[0].Name)
-	// g.Indent()
-	// g.Fpln("return func(%s %s) {", "v", tol.Fields[0].Type.TypeString())
-	// g.Indent()
-
-	for _, field := range tol.Fields {
-		GenTypeOptionFieldFactory(g, field)
+func GenTypeOptionFieldFactories(g *Generator, optionRecvType string, fields []*model.Field) {
+	for _, field := range fields {
+		GenTypeOptionFieldFactory(g, optionRecvType, field)
 		g.Fpln("")
 	}
 }
 
-func GenTypeOptionFieldFactory(g *Generator, field *model.Field) {
-	g.Fpln("func With%s(%s %s) Option {", field.Name, ParamNameFromType(field.Type.TypeString()), field.Name)
+func GenTypeOptionFieldFactory(g *Generator, optionRecvType string, field *model.Field) {
+	fieldTypeString := field.Type.TypeString()
+	paramName := ParamNameFromType(fieldTypeString)
+
+	g.Fpln("func With%s(%s %s) Option {", field.Name, paramName, fieldTypeString)
+	g.Indent()
+	g.Fpln("return Option(func(%s *%s) {", "v", optionRecvType)
+	g.Indent()
+	g.Fpln("%s.%s = %s", "v", field.Name, paramName)
+	g.Outdent()
+	g.Fpln("})")
+	g.Outdent()
+	g.Fpln("}")
 }

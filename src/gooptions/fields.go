@@ -29,8 +29,7 @@ func CollectModelFieldsFromASTFieldList(fieldList *ast.FieldList) []*model.Field
 	result := make([]*model.Field, 0, len(fieldList.List))
 
 	for _, field := range fieldList.List {
-		modelField := NewModelFieldFromASTField(field)
-		if modelField != nil {
+		if modelField, ok := NewModelFieldFromASTField(field); ok {
 			result = append(result, modelField)
 		}
 	}
@@ -38,7 +37,7 @@ func CollectModelFieldsFromASTFieldList(fieldList *ast.FieldList) []*model.Field
 	return result
 }
 
-func NewModelFieldFromASTField(field *ast.Field) *model.Field {
+func NewModelFieldFromASTField(field *ast.Field) (*model.Field, bool) {
 	var modelFT model.FieldType
 
 	switch astFT := field.Type.(type) {
@@ -47,12 +46,13 @@ func NewModelFieldFromASTField(field *ast.Field) *model.Field {
 
 	default:
 		log.Printf("unsupported *ast.Field.Type %T", astFT)
+		return nil, false
 	}
 
 	return &model.Field{
 		Name: NameOfField(field),
 		Type: modelFT,
-	}
+	}, true
 }
 
 func NameOfField(field *ast.Field) string {

@@ -1,5 +1,7 @@
 package ident
 
+type IdentPrim int
+
 type Ident struct {
 	String string
 
@@ -26,4 +28,6 @@ type Ident struct {
 	Complex128 complex128
 
 	Bool bool
+
+	IPrim IdentPrim
 }

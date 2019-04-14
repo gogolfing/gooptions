@@ -1,7 +1,6 @@
 package gooptions
 
 import (
-	"fmt"
 	"go/ast"
 	"log"
 
@@ -9,11 +8,11 @@ import (
 )
 
 func addStructTypeToModel(m *model.Model, filePath, packageName, typeName string, structType *ast.StructType) error {
-	fmt.Println("addStructTypeToModel()", typeName, len(structType.Fields.List))
+	log.Println("addStructTypeToModel()", typeName, len(structType.Fields.List))
 
 	modelFields := CollectModelFieldsFromASTFieldList(structType.Fields)
 
-	fmt.Printf("%#v\n", modelFields)
+	log.Printf("%#v\n", modelFields)
 
 	tol := model.NewTypeOptionList(
 		filePath,

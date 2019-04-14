@@ -7,6 +7,7 @@ import (
 	"go/parser"
 	"go/token"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -29,14 +30,14 @@ func GenerateOptionsModel(out io.Writer, path string) (*model.Model, error) {
 		return nil, err
 	}
 
-	fmt.Fprintln(out, "goFilePaths", goFilePaths)
+	log.Println(out, "goFilePaths", goFilePaths)
 
 	goFileASTs, err := ParseGoFileASTs(goFilePaths)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Fprintln(out, "goFileASTs", goFileASTs)
+	log.Println(out, "goFileASTs", goFileASTs)
 
 	result := model.NewModel()
 

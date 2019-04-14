@@ -1,7 +1,7 @@
 package modelprinter
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/gogolfing/gooptions/src/gooptions/model"
 )
@@ -21,7 +21,7 @@ func New(c Config, m *model.Model) *Printer {
 
 //w may be used if there is a sinlge destination package and
 func (p *Printer) Print() error {
-	fmt.Println("printing model")
+	log.Println("Printing model ...")
 
 	err := p.model.VisitSourceFilePathTypeOptionLists(
 		func(sourceFilePath string, tol *model.TypeOptionList) error {

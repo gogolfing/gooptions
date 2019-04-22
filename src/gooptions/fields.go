@@ -1,10 +1,15 @@
 package gooptions
 
 import (
+	"errors"
 	"go/ast"
 	"log"
 
 	"github.com/gogolfing/gooptions/src/gooptions/model"
+)
+
+var (
+	errUnsupportedASTExpr = errors.New("unsupported ast.Expr type")
 )
 
 func addStructTypeToModel(m *model.Model, filePath, packageName, typeName string, structType *ast.StructType) error {
@@ -37,9 +42,12 @@ func CollectModelFieldsFromASTFieldList(fieldList *ast.FieldList) []*model.Field
 }
 
 func NewModelFieldFromASTField(field *ast.Field) (*model.Field, bool) {
-	var modelFT model.FieldType
+	var modelFT model.TargetType
 
 	switch astFT := field.Type.(type) {
+	case *ast.ChanType:
+		modelFT = NewModelChanType(astFT)
+
 	case *ast.Ident:
 		modelFT = NewModelIdentType(astFT)
 
@@ -54,12 +62,32 @@ func NewModelFieldFromASTField(field *ast.Field) (*model.Field, bool) {
 	}, true
 }
 
+func NewModelTargetType(expr ast.Expr) (model.TargetType, error) {
+	var result model.TargetType
+
+	switch astType := expr.(type) {
+	case *ast.ChanType:
+		result = NewModelChanType(astType)
+
+	default:
+		return nil, errUnsupportedASTExpr
+	}
+
+	return result, nil
+}
+
 func NameOfField(field *ast.Field) string {
 	if len(field.Names) == 0 {
 		return ""
 	}
 
 	return field.Names[0].Name
+}
+
+func NewModelChanType(c *ast.ChanType) *model.ChanType {
+	return &model.ChanType{
+		ChanDir: c.Dir,
+	}
 }
 
 func NewModelIdentType(ident *ast.Ident) model.IdentType {

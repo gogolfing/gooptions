@@ -28,7 +28,7 @@ func TestIdentType_TypeString_ReturnsTheStringCastedValues(t *testing.T) {
 	}
 }
 
-func TestChanType_SetPackageNames_DefersToBaseType(t *testing.T) {
+func TestChanType_SetPackageNames_DefersToCompositeType(t *testing.T) {
 	wantNames := map[string]bool{
 		"a": true,
 		"b": false,
@@ -74,7 +74,7 @@ func TestChanType_TypeString_ReturnsCorrectTypeStringAndDirections(t *testing.T)
 	}
 }
 
-func TestPointerType_SetPackageNames_DefersToBaseType(t *testing.T) {
+func TestPointerType_SetPackageNames_DefersToCompositeType(t *testing.T) {
 	wantNames := map[string]bool{
 		"a": true,
 		"b": false,
@@ -94,16 +94,47 @@ func TestPointerType_SetPackageNames_DefersToBaseType(t *testing.T) {
 	}
 }
 
-func TestPointerType_TypeString_ReturnsStarPlusBaseType(t *testing.T) {
-	base := &StubTargetType{
-		TypeString_: "foobar",
-	}
-
+func TestPointerType_TypeString_ReturnsStarPlusCompositeType(t *testing.T) {
 	pt := &PointerType{
-		Type: base,
+		Type: &StubTargetType{
+			TypeString_: "foobar",
+		},
 	}
 
 	if result := pt.TypeString(); result != "*foobar" {
+		t.Fatal(result)
+	}
+}
+
+func TestArrayType_SetPackageNames_DefersToCompositeType(t *testing.T) {
+	wantNames := map[string]bool{
+		"a": true,
+		"b": false,
+	}
+
+	at := &ArrayType{
+		Type: &StubTargetType{
+			PackageNames: wantNames,
+		},
+	}
+
+	result := map[string]bool{}
+	at.SetPackageNames(result)
+
+	if !reflect.DeepEqual(result, wantNames) {
+		t.Fatal()
+	}
+}
+
+func TestArrayType_TypeString_ReturnsSliceWithLengthPlusCompositeType(t *testing.T) {
+	at := &ArrayType{
+		Len: "len",
+		Type: &StubTargetType{
+			TypeString_: "foobar",
+		},
+	}
+
+	if result := at.TypeString(); result != "[len]foobar" {
 		t.Fatal(result)
 	}
 }

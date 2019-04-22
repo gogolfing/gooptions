@@ -26,6 +26,7 @@ var (
 	_ TargetType   = IdentType("")
 	_ *ChanType    = &ChanType{}
 	_ *PointerType = &PointerType{}
+	_ *ArrayType   = &ArrayType{}
 )
 
 type IdentType string
@@ -75,4 +76,20 @@ func (t *PointerType) SetPackageNames(pns map[string]bool) {
 
 func (t *PointerType) TypeString() string {
 	return "*" + t.Type.TypeString()
+}
+
+type ArrayType struct {
+	//Len is the string that appears between the [<here>] in an array or slice type definition.
+	//It should be empty for slice types and whatever string is present for array types.
+	Len string
+
+	Type TargetType
+}
+
+func (t *ArrayType) SetPackageNames(pns map[string]bool) {
+	t.Type.SetPackageNames(pns)
+}
+
+func (t *ArrayType) TypeString() string {
+	return "[" + t.Len + "]" + t.Type.TypeString()
 }

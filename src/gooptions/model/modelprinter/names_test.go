@@ -55,10 +55,18 @@ func TestTrimStarAndChanRunesPrefix(t *testing.T) {
 		{"<-*<-<---<<", ""},
 		{"*<- ", " "},
 		{"*int", "int"},
+
+		{"[]", ""},
+		{"[2]_", "_"},
+		{"[0xA]F", "F"},
+		{"[...]****", ""},
+		{"[02314]<-*<-<---<<", ""},
+		{"[]*<- ", " "},
+		{"[]*int", "int"},
 	}
 
 	for i, tc := range cases {
-		result := TrimStarAndChanRunesPrefix(tc.typeName)
+		result := TrimArrayPointerChanPrefix(tc.typeName)
 
 		if result != tc.result {
 			t.Errorf("%d: result = %q WANT %q", i, result, tc.result)

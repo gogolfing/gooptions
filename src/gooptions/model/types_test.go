@@ -139,6 +139,52 @@ func TestArrayType_TypeString_ReturnsSliceWithLengthPlusCompositeType(t *testing
 	}
 }
 
+func TestMapType_SetPackageNames_DefersToBothCompositeTypes(t *testing.T) {
+	wantNames1 := map[string]bool{
+		"a": true,
+		"b": false,
+	}
+	wantNames2 := map[string]bool{
+		"c": true,
+		"d": false,
+	}
+
+	mt := &MapType{
+		KeyType: &StubTargetType{
+			PackageNames: wantNames1,
+		},
+		ValueType: &StubTargetType{
+			PackageNames: wantNames2,
+		},
+	}
+
+	result := map[string]bool{}
+	mt.SetPackageNames(result)
+
+	for k, v := range wantNames1 {
+		wantNames2[k] = v
+	}
+
+	if !reflect.DeepEqual(result, wantNames2) {
+		t.Fatal()
+	}
+}
+
+func TestMapType_TypeString_ReturnsMapPlusKeyPlusValueTypeStrings(t *testing.T) {
+	mt := &MapType{
+		KeyType: &StubTargetType{
+			TypeString_: "foo",
+		},
+		ValueType: &StubTargetType{
+			TypeString_: "bar",
+		},
+	}
+
+	if result := mt.TypeString(); result != "map[foo]bar" {
+		t.Fatal(result)
+	}
+}
+
 type StubTargetType struct {
 	PackageNames map[string]bool
 

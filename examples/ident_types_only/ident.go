@@ -42,4 +42,6 @@ type Ident struct {
 
 	SliceInt  []int
 	ArrayInt2 [0xA]int
+
+	MapIntChanString map[int]chan string
 }

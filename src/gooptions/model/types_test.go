@@ -28,7 +28,7 @@ func TestIdentType_TypeString_ReturnsTheStringCastedValues(t *testing.T) {
 	}
 }
 
-func TestChanType_SetPackageNames_DefersToCompositeType(t *testing.T) {
+func TestChanType_SetPackageNames_DefersToBaseType(t *testing.T) {
 	wantNames := map[string]bool{
 		"a": true,
 		"b": false,
@@ -55,8 +55,8 @@ func TestChanType_TypeString_ReturnsCorrectTypeStringAndDirections(t *testing.T)
 		result   string
 	}{
 		{"int", ast.SEND | ast.RECV, "chan int"},
-		{"rune", ast.SEND, "<-chan rune"},
-		{"bool", ast.RECV, "chan<- bool"},
+		{"rune", ast.SEND, "chan<- rune"},
+		{"bool", ast.RECV, "<-chan bool"},
 		{"float64", 0, "chan float64"}, //Shouldn't happend, but still testing againt it.
 	}
 
@@ -71,6 +71,40 @@ func TestChanType_TypeString_ReturnsCorrectTypeStringAndDirections(t *testing.T)
 		if result != tc.result {
 			t.Errorf("%d: %q WANT %q", i, result, tc.result)
 		}
+	}
+}
+
+func TestPointerType_SetPackageNames_DefersToBaseType(t *testing.T) {
+	wantNames := map[string]bool{
+		"a": true,
+		"b": false,
+	}
+
+	pt := &PointerType{
+		Type: &StubTargetType{
+			PackageNames: wantNames,
+		},
+	}
+
+	result := map[string]bool{}
+	pt.SetPackageNames(result)
+
+	if !reflect.DeepEqual(result, wantNames) {
+		t.Fatal()
+	}
+}
+
+func TestPointerType_TypeString_ReturnsStarPlusBaseType(t *testing.T) {
+	base := &StubTargetType{
+		TypeString_: "foobar",
+	}
+
+	pt := &PointerType{
+		Type: base,
+	}
+
+	if result := pt.TypeString(); result != "*foobar" {
+		t.Fatal(result)
 	}
 }
 

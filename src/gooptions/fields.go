@@ -33,7 +33,9 @@ func CollectModelFieldsFromASTFieldList(fieldList *ast.FieldList) []*model.Field
 	result := make([]*model.Field, 0, len(fieldList.List))
 
 	for _, field := range fieldList.List {
-		if modelField, ok := NewModelFieldFromASTField(field); ok {
+		if modelField, err := NewModelFieldFromASTField(field); err != nil {
+			log.Println(err)
+		} else {
 			result = append(result, modelField)
 		}
 	}
@@ -41,39 +43,37 @@ func CollectModelFieldsFromASTFieldList(fieldList *ast.FieldList) []*model.Field
 	return result
 }
 
-func NewModelFieldFromASTField(field *ast.Field) (*model.Field, bool) {
-	var modelFT model.TargetType
-
-	switch astFT := field.Type.(type) {
-	case *ast.ChanType:
-		modelFT = NewModelChanType(astFT)
-
-	case *ast.Ident:
-		modelFT = NewModelIdentType(astFT)
-
-	default:
-		log.Printf("unsupported *ast.Field.Type %T", astFT)
-		return nil, false
+func NewModelFieldFromASTField(field *ast.Field) (*model.Field, error) {
+	modelTargetType, err := NewModelTargetType(field.Type)
+	if err != nil {
+		return nil, err
 	}
 
 	return &model.Field{
 		Name: NameOfField(field),
-		Type: modelFT,
-	}, true
+		Type: modelTargetType,
+	}, nil
 }
 
 func NewModelTargetType(expr ast.Expr) (model.TargetType, error) {
 	var result model.TargetType
+	var err error
 
 	switch astType := expr.(type) {
 	case *ast.ChanType:
-		result = NewModelChanType(astType)
+		result, err = NewModelChanType(astType)
+
+	case *ast.Ident:
+		result = NewModelIdentType(astType)
+
+	case *ast.StarExpr:
+		result, err = NewModelPointerType(astType)
 
 	default:
 		return nil, errUnsupportedASTExpr
 	}
 
-	return result, nil
+	return result, err
 }
 
 func NameOfField(field *ast.Field) string {
@@ -84,12 +84,29 @@ func NameOfField(field *ast.Field) string {
 	return field.Names[0].Name
 }
 
-func NewModelChanType(c *ast.ChanType) *model.ChanType {
+func NewModelChanType(c *ast.ChanType) (*model.ChanType, error) {
+	t, err := NewModelTargetType(c.Value)
+	if err != nil {
+		return nil, err
+	}
+
 	return &model.ChanType{
 		ChanDir: c.Dir,
-	}
+		Type:    t,
+	}, nil
 }
 
 func NewModelIdentType(ident *ast.Ident) model.IdentType {
 	return model.IdentType(ident.Name)
+}
+
+func NewModelPointerType(se *ast.StarExpr) (*model.PointerType, error) {
+	t, err := NewModelTargetType(se.X)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.PointerType{
+		Type: t,
+	}, nil
 }

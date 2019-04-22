@@ -39,4 +39,7 @@ type Ident struct {
 
 	SendChan    chan<- int
 	ReceiveChan <-chan int
+
+	SliceInt  []int
+	ArrayInt2 [0xA]int
 }

@@ -8,7 +8,7 @@ import (
 
 var (
 	//Normally - is the range character in the character class. That is why it is at the end of the class.
-	starChanRunesPrefix = regexp.MustCompile(`^[<*-]+`)
+	arrayPointerChanPrefix = regexp.MustCompile(`^(\[[^\]]*\])?([<*-]+)?`)
 )
 
 //ParamNameFromType returns a parameter name from a type's name.
@@ -20,7 +20,7 @@ var (
 //
 //TODO something about a qualifier package name.
 func ParamNameFromType(typeName string) string {
-	typeName = TrimStarAndChanRunesPrefix(typeName)
+	typeName = TrimArrayPointerChanPrefix(typeName)
 
 	firstRune, _ := utf8.DecodeRune([]byte(typeName))
 	firstRuneString := string(firstRune)
@@ -37,8 +37,9 @@ func ParamNameFromType(typeName string) string {
 	return result
 }
 
-//TrimStarAndChanRunesPrefix returns typeName with all * < - runes at the beginning
-//of typeString replaced with the empty string.
-func TrimStarAndChanRunesPrefix(typeName string) string {
-	return starChanRunesPrefix.ReplaceAllString(typeName, "")
+//TrimArrayPointerChanPrefix returns typeName with a possible array or slice type
+//square bracket length expression followed by all * < - runes at the beginning
+//of typeString replaced with the empty string..
+func TrimArrayPointerChanPrefix(typeName string) string {
+	return arrayPointerChanPrefix.ReplaceAllString(typeName, "")
 }

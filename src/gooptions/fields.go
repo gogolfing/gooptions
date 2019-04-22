@@ -60,6 +60,9 @@ func NewModelTargetType(expr ast.Expr) (model.TargetType, error) {
 	var err error
 
 	switch astType := expr.(type) {
+	case *ast.ArrayType:
+		result, err = NewModelArrayType(astType)
+
 	case *ast.ChanType:
 		result, err = NewModelChanType(astType)
 
@@ -107,6 +110,23 @@ func NewModelPointerType(se *ast.StarExpr) (*model.PointerType, error) {
 	}
 
 	return &model.PointerType{
+		Type: t,
+	}, nil
+}
+
+func NewModelArrayType(at *ast.ArrayType) (*model.ArrayType, error) {
+	t, err := NewModelTargetType(at.Elt)
+	if err != nil {
+		return nil, err
+	}
+
+	lenString := ""
+	if basic, ok := at.Len.(*ast.BasicLit); ok {
+		lenString = basic.Value
+	}
+
+	return &model.ArrayType{
+		Len:  lenString,
 		Type: t,
 	}, nil
 }

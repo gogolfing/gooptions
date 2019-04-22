@@ -27,6 +27,7 @@ var (
 	_ *ChanType    = &ChanType{}
 	_ *PointerType = &PointerType{}
 	_ *ArrayType   = &ArrayType{}
+	_ *MapType     = &MapType{}
 )
 
 type IdentType string
@@ -92,4 +93,18 @@ func (t *ArrayType) SetPackageNames(pns map[string]bool) {
 
 func (t *ArrayType) TypeString() string {
 	return "[" + t.Len + "]" + t.Type.TypeString()
+}
+
+type MapType struct {
+	KeyType   TargetType
+	ValueType TargetType
+}
+
+func (t *MapType) SetPackageNames(pns map[string]bool) {
+	t.KeyType.SetPackageNames(pns)
+	t.ValueType.SetPackageNames(pns)
+}
+
+func (t *MapType) TypeString() string {
+	return "map[" + t.KeyType.TypeString() + "]" + t.ValueType.TypeString()
 }

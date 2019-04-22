@@ -69,6 +69,9 @@ func NewModelTargetType(expr ast.Expr) (model.TargetType, error) {
 	case *ast.Ident:
 		result = NewModelIdentType(astType)
 
+	case *ast.MapType:
+		result, err = NewModelMapType(astType)
+
 	case *ast.StarExpr:
 		result, err = NewModelPointerType(astType)
 
@@ -128,5 +131,21 @@ func NewModelArrayType(at *ast.ArrayType) (*model.ArrayType, error) {
 	return &model.ArrayType{
 		Len:  lenString,
 		Type: t,
+	}, nil
+}
+
+func NewModelMapType(mt *ast.MapType) (*model.MapType, error) {
+	kt, err := NewModelTargetType(mt.Key)
+	if err != nil {
+		return nil, err
+	}
+	vt, err := NewModelTargetType(mt.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.MapType{
+		KeyType:   kt,
+		ValueType: vt,
 	}, nil
 }

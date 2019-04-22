@@ -1,51 +1,65 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+	"go/ast"
+)
 
 type Field struct {
 	Name string
-	Type FieldType
+	Type TargetType
 }
 
 func (f *Field) GoString() string {
 	return fmt.Sprintf("&model.Field{%q %q}", f.Name, f.Type.TypeString())
 }
 
-type FieldType interface {
-	Packages() PackageSet
+type TargetType interface {
+	SetPackageNames(map[string]bool)
 
 	TypeString() string
 }
 
-type PackageSet map[string]bool
+var (
+	//Ensure that all required types implement TargetType.
 
-func (ps PackageSet) Add(name string) {
-	ps[name] = true
-}
-
-func (ps PackageSet) With(other PackageSet) PackageSet {
-	result := make(map[string]bool, len(ps)+len(other))
-
-	for key, value := range ps {
-		if value {
-			result[key] = true
-		}
-	}
-	for key, value := range other {
-		if value {
-			result[key] = true
-		}
-	}
-
-	return result
-}
+	_ TargetType = IdentType("")
+	_ *ChanType  = &ChanType{}
+)
 
 type IdentType string
 
-func (t IdentType) Packages() PackageSet {
-	return nil
-}
+func (t IdentType) SetPackageNames(_ map[string]bool) {}
 
 func (t IdentType) TypeString() string {
 	return string(t)
+}
+
+type ChanType struct {
+	ChanDir ast.ChanDir
+	Type    TargetType
+}
+
+const (
+	ChanDirBoth = ast.SEND | ast.RECV
+)
+
+func (t *ChanType) SetPackageNames(pns map[string]bool) {
+	t.Type.SetPackageNames(pns)
+}
+
+func (t *ChanType) TypeString() string {
+	result := "chan"
+
+	if t.ChanDir&ChanDirBoth != ChanDirBoth {
+		if t.ChanDir&ast.SEND == ast.SEND {
+			result = "<-" + result
+		} else if t.ChanDir&ast.RECV == ast.RECV {
+			result += "<-"
+		}
+	}
+
+	result += " " + t.Type.TypeString()
+
+	return result
 }

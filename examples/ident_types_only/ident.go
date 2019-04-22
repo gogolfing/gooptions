@@ -1,5 +1,7 @@
 package ident
 
+import "io"
+
 type IdentPrim int
 
 type Ident struct {
@@ -30,4 +32,8 @@ type Ident struct {
 	Bool bool
 
 	IPrim IdentPrim
+
+	Err error
+
+	WhatIsThis io.Writer
 }

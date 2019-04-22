@@ -1,7 +1,5 @@
 package ident
 
-import "io"
-
 type IdentPrim int
 
 type Ident struct {
@@ -33,7 +31,12 @@ type Ident struct {
 
 	IPrim IdentPrim
 
-	Err error
+	Chan chan int
 
-	WhatIsThis io.Writer
+	PointerInt *int
+
+	PointerPointerBool **bool
+
+	SendChan    chan<- int
+	ReceiveChan <-chan int
 }

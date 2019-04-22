@@ -1,8 +1,14 @@
 package modelprinter
 
 import (
+	"regexp"
 	"strings"
 	"unicode/utf8"
+)
+
+var (
+	//Normally - is the range character in the character class. That is why it is at the end of the class.
+	starChanRunesPrefix = regexp.MustCompile(`^[<*-]+`)
 )
 
 //ParamNameFromType returns a parameter name from a type's name.
@@ -14,6 +20,8 @@ import (
 //
 //TODO something about a qualifier package name.
 func ParamNameFromType(typeName string) string {
+	typeName = TrimStarAndChanRunesPrefix(typeName)
+
 	firstRune, _ := utf8.DecodeRune([]byte(typeName))
 	firstRuneString := string(firstRune)
 
@@ -27,4 +35,10 @@ func ParamNameFromType(typeName string) string {
 	}
 
 	return result
+}
+
+//TrimStarAndChanRunesPrefix returns typeName with all * < - runes at the beginning
+//of typeString replaced with the empty string.
+func TrimStarAndChanRunesPrefix(typeName string) string {
+	return starChanRunesPrefix.ReplaceAllString(typeName, "")
 }

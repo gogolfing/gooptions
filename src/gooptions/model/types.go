@@ -23,8 +23,9 @@ type TargetType interface {
 var (
 	//Ensure that all required types implement TargetType.
 
-	_ TargetType = IdentType("")
-	_ *ChanType  = &ChanType{}
+	_ TargetType   = IdentType("")
+	_ *ChanType    = &ChanType{}
+	_ *PointerType = &PointerType{}
 )
 
 type IdentType string
@@ -53,13 +54,25 @@ func (t *ChanType) TypeString() string {
 
 	if t.ChanDir&ChanDirBoth != ChanDirBoth {
 		if t.ChanDir&ast.SEND == ast.SEND {
-			result = "<-" + result
+			result = result + "<-"
 		} else if t.ChanDir&ast.RECV == ast.RECV {
-			result += "<-"
+			result = "<-" + result
 		}
 	}
 
 	result += " " + t.Type.TypeString()
 
 	return result
+}
+
+type PointerType struct {
+	Type TargetType
+}
+
+func (t *PointerType) SetPackageNames(pns map[string]bool) {
+	t.Type.SetPackageNames(pns)
+}
+
+func (t *PointerType) TypeString() string {
+	return "*" + t.Type.TypeString()
 }

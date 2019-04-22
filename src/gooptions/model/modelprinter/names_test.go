@@ -32,6 +32,33 @@ func TestParamName(t *testing.T) {
 
 	for i, tc := range cases {
 		result := ParamNameFromType(tc.typeName)
+		if result != tc.result {
+			t.Errorf("%d: result = %q WANT %q", i, result, tc.result)
+		}
+
+		result = ParamNameFromType("*<-" + tc.typeName)
+		if result != tc.result {
+			t.Errorf("%d: result*<- = %q WANT %q", i, result, tc.result)
+		}
+	}
+}
+
+func TestTrimStarAndChanRunesPrefix(t *testing.T) {
+	cases := []struct {
+		typeName string
+		result   string
+	}{
+		{"", ""},
+		{"_", "_"},
+		{"F", "F"},
+		{"****", ""},
+		{"<-*<-<---<<", ""},
+		{"*<- ", " "},
+		{"*int", "int"},
+	}
+
+	for i, tc := range cases {
+		result := TrimStarAndChanRunesPrefix(tc.typeName)
 
 		if result != tc.result {
 			t.Errorf("%d: result = %q WANT %q", i, result, tc.result)

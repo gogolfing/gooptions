@@ -41,5 +41,5 @@ type Ident struct {
 	ReceiveChan <-chan int
 
 	SliceInt  []int
-	ArrayInt2 [0xa]int
+	ArrayInt2 [0xA]int
 }

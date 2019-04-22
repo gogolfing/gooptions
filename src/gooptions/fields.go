@@ -121,10 +121,8 @@ func NewModelArrayType(at *ast.ArrayType) (*model.ArrayType, error) {
 	}
 
 	lenString := ""
-	if at.Len != nil {
-		if basic, ok := at.Len.(*ast.BasicLit); ok {
-			lenString = basic.Value
-		}
+	if basic, ok := at.Len.(*ast.BasicLit); ok {
+		lenString = basic.Value
 	}
 
 	return &model.ArrayType{

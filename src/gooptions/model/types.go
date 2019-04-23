@@ -20,16 +20,6 @@ type TargetType interface {
 	TypeString() string
 }
 
-var (
-	//Ensure that all required types implement TargetType.
-
-	_ TargetType   = IdentType("")
-	_ *ChanType    = &ChanType{}
-	_ *PointerType = &PointerType{}
-	_ *ArrayType   = &ArrayType{}
-	_ *MapType     = &MapType{}
-)
-
 type IdentType string
 
 func (t IdentType) SetPackageNames(_ map[string]bool) {}
@@ -107,4 +97,20 @@ func (t *MapType) SetPackageNames(pns map[string]bool) {
 
 func (t *MapType) TypeString() string {
 	return "map[" + t.KeyType.TypeString() + "]" + t.ValueType.TypeString()
+}
+
+type SelectorType struct {
+	//PackageName is the name of the package in <package>.<Type>
+	PackageName string
+
+	//Type is the name of the type in <package>.<Type>
+	TypeName string
+}
+
+func (t *SelectorType) SetPackageNames(pns map[string]bool) {
+	pns[t.PackageName] = true
+}
+
+func (t *SelectorType) TypeString() string {
+	return t.PackageName + "." + t.TypeName
 }

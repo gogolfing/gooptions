@@ -8,6 +8,17 @@ import (
 	. "github.com/gogolfing/gooptions/src/gooptions/model"
 )
 
+var (
+	//Ensure that all required types implement TargetType.
+
+	_ TargetType    = IdentType("")
+	_ *ChanType     = &ChanType{}
+	_ *PointerType  = &PointerType{}
+	_ *ArrayType    = &ArrayType{}
+	_ *MapType      = &MapType{}
+	_ *SelectorType = &SelectorType{}
+)
+
 func TestIdentType_SetPackageNames_DoesNotSetAny(t *testing.T) {
 	it := IdentType("value")
 
@@ -181,6 +192,31 @@ func TestMapType_TypeString_ReturnsMapPlusKeyPlusValueTypeStrings(t *testing.T) 
 	}
 
 	if result := mt.TypeString(); result != "map[foo]bar" {
+		t.Fatal(result)
+	}
+}
+
+func TestSelectorType_SetPackageNames_SetsTheValueOfPackageNameToTrue(t *testing.T) {
+	st := &SelectorType{
+		PackageName: "pn",
+	}
+
+	result := map[string]bool{}
+
+	st.SetPackageNames(result)
+
+	if len(result) != 1 || result["pn"] != true {
+		t.Fatal()
+	}
+}
+
+func TestSelectorType_TypeString_ReturnsPackageNamePlusPeriodPlusTypeName(t *testing.T) {
+	st := &SelectorType{
+		PackageName: "pn",
+		TypeName:    "Tn",
+	}
+
+	if result := st.TypeString(); result != "pn.Tn" {
 		t.Fatal(result)
 	}
 }

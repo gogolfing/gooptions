@@ -1,12 +1,34 @@
 package modelprinter_test
 
 import (
+	"fmt"
 	"testing"
 
 	. "github.com/gogolfing/gooptions/src/gooptions/model/modelprinter"
 )
 
-func TestParamName(t *testing.T) {
+func ExampleParamName() {
+	printTypeAndParamName := func(typeName string) {
+		fmt.Printf("%q -> %q\n", typeName, ParamNameFromType(typeName))
+	}
+
+	printTypeAndParamName("int")
+	printTypeAndParamName("<-chan bool")
+	printTypeAndParamName("chan<- *os.File")
+	printTypeAndParamName("[2]byte")
+	printTypeAndParamName("[]string")
+	printTypeAndParamName("map[string]int")
+
+	//Output:
+	//"int" -> "i"
+	//"<-chan bool" -> "c"
+	//"chan<- *os.File" -> "f"
+	//"[2]byte" -> "b"
+	//"[]string" -> "s"
+	//"map[string]int" -> "m"
+}
+
+func TestParamNameFromType(t *testing.T) {
 	cases := []struct {
 		typeName string
 		result   string
@@ -39,6 +61,11 @@ func TestParamName(t *testing.T) {
 		result = ParamNameFromType("*<-" + tc.typeName)
 		if result != tc.result {
 			t.Errorf("%d: result*<- = %q WANT %q", i, result, tc.result)
+		}
+
+		result = ParamNameFromType("packageName." + tc.typeName)
+		if result != tc.result {
+			t.Errorf("%d: packageName.result = %q WANT %q", i, result, tc.result)
 		}
 	}
 }

@@ -72,6 +72,9 @@ func NewModelTargetType(expr ast.Expr) (model.TargetType, error) {
 	case *ast.MapType:
 		result, err = NewModelMapType(astType)
 
+	case *ast.SelectorExpr:
+		result, err = NewModelSelectorType(astType)
+
 	case *ast.StarExpr:
 		result, err = NewModelPointerType(astType)
 
@@ -147,5 +150,22 @@ func NewModelMapType(mt *ast.MapType) (*model.MapType, error) {
 	return &model.MapType{
 		KeyType:   kt,
 		ValueType: vt,
+	}, nil
+}
+
+func NewModelSelectorType(st *ast.SelectorExpr) (*model.SelectorType, error) {
+	packageNameType, err := NewModelTargetType(st.X)
+	if err != nil {
+		return nil, err
+	}
+
+	fieldType, err := NewModelTargetType(st.Sel)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.SelectorType{
+		PackageName: packageNameType.TypeString(),
+		TypeName:    fieldType.TypeString(),
 	}, nil
 }

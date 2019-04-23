@@ -16,11 +16,21 @@ var (
 //As a special case, if typeName is empty, then this rune value is set to '_'.
 //If this value is equal to typeName, then an underscore is appended to the result.
 //
-//Note that an invalid type name will likely result in an invalid parameter name.
+//Any slice or array type expression at the beginning of typeName, along with any
+//of the following < - * runes will be removed.
+//This is to account for slice and array types as well as channel types in any direction.
 //
-//TODO something about a qualifier package name.
+//If there is a period in typeName, then the value after the period is then treated
+//as typeName. This is to account for package references like os.File.
+//
+//Note that an invalid type name will likely result in an invalid parameter name.
 func ParamNameFromType(typeName string) string {
 	typeName = TrimArrayPointerChanPrefix(typeName)
+
+	//Remove the package name, SelectorType, prefix if present.
+	if index := strings.Index(typeName, "."); index >= 0 {
+		typeName = typeName[index+1:]
+	}
 
 	firstRune, _ := utf8.DecodeRune([]byte(typeName))
 	firstRuneString := string(firstRune)

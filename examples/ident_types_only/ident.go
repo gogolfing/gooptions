@@ -1,5 +1,7 @@
 package ident
 
+import "os"
+
 type IdentPrim int
 
 type Ident struct {
@@ -44,4 +46,6 @@ type Ident struct {
 	ArrayInt2 [0xA]int
 
 	MapIntChanString map[int]chan string
+
+	File *os.File
 }
